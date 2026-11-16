@@ -43,9 +43,9 @@ finish() {
 trap finish EXIT
 
 echo '==> Building packages'
-runuser -u builder -- env OUT="$BUILD_OUT" "$BUILD_SRC/scripts/build-pkgs.sh"
+runuser -u builder -- env OUT="$BUILD_OUT" bash "$BUILD_SRC/scripts/build-pkgs.sh"
 
 if [[ "$MODE" == 'all' ]]; then
   echo '==> Building ISO'
-  OUT="$BUILD_OUT" WORK_DIR="${WORK_DIR:-/var/tmp/archbridge-work}" "$BUILD_SRC/scripts/build-iso.sh"
+  OUT="$BUILD_OUT" WORK_DIR="${WORK_DIR:-/var/tmp/archbridge-work}" bash "$BUILD_SRC/scripts/build-iso.sh"
 fi
