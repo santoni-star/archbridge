@@ -1,0 +1,41 @@
+pkgname=archbridge-calamares-config
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='ArchBridge: Calamares installer configuration, branding and launcher'
+arch=('any')
+url='https://example.invalid/archbridge'
+license=('GPL-3.0-or-later')
+depends=(
+  'calamares'
+  'btrfs-progs'
+  'cryptsetup'
+  'dosfstools'
+  'e2fsprogs'
+  'efibootmgr'
+  'grub'
+  'gptfdisk'
+  'mkinitcpio'
+  'os-prober'
+  'rsync'
+  'squashfs-tools'
+)
+source=()
+
+package() {
+  local inst="$startdir/files/usr/share/archbridge/installer"
+
+  # Calamares reads its configuration from /etc/calamares.
+  install -d "$pkgdir/etc/calamares"
+  cp -a "$inst/settings.conf" "$pkgdir/etc/calamares/settings.conf"
+  cp -a "$inst/modules" "$pkgdir/etc/calamares/modules"
+  cp -a "$inst/branding" "$pkgdir/etc/calamares/branding"
+
+  # Helper that runs inside the installed system (chroot).
+  install -Dm755 "$inst/cleanup-chroot.sh" \
+    "$pkgdir/usr/share/archbridge/installer/cleanup-chroot.sh"
+
+  install -Dm755 "$startdir/files/usr/bin/archbridge-installer" \
+    "$pkgdir/usr/bin/archbridge-installer"
+  install -Dm644 "$startdir/files/usr/share/applications/archbridge-installer.desktop" \
+    "$pkgdir/usr/share/applications/archbridge-installer.desktop"
+}

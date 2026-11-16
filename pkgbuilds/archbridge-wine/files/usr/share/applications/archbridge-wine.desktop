@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Windows Program (ArchBridge)
+Name[uk]=Програма Windows (ArchBridge)
+Name[pl]=Program Windows (ArchBridge)
+Comment=Run Windows programs
+Exec=archbridge-run-exe %f
+Icon=wine
+Terminal=false
+NoDisplay=true
+Categories=Wine;
+MimeType=application/x-ms-dos-executable;application/vnd.microsoft.portable-executable;application/x-msdownload;application/x-msi;application/x-ms-installer;

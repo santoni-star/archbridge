@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Open a Windows program or installer with the default ArchBridge prefix.
+# Used as the handler for .exe / .msi files.
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "usage: ${0##*/} FILE.exe|FILE.msi [args...]" >&2
+  exit 2
+fi
+
+archbridge-wine-setup
+
+export WINEPREFIX="${ARCHBRIDGE_PREFIX:-$HOME/.local/share/archbridge/prefix}"
+export WINEDEBUG="${WINEDEBUG:--all}"
+file="$1"
+shift
+
+case "${file,,}" in
+  *.msi) exec wine msiexec /i "$(winepath -w "$file")" "$@" ;;
+  *)     exec wine start /unix "$file" "$@" ;;
+esac

@@ -1,0 +1,44 @@
+pkgname=archbridge-desktop
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='ArchBridge: minimal KDE Plasma (Wayland) desktop and base applications'
+arch=('any')
+url='https://example.invalid/archbridge'
+license=('GPL-3.0-or-later')
+depends=(
+  # Plasma: deliberately plasma-desktop, not plasma-meta
+  'plasma-desktop'
+  'plasma-nm'
+  'plasma-pa'
+  'plasma-workspace'
+  'kscreen'
+  'powerdevil'
+  'kde-gtk-config'
+  'breeze-gtk'
+  'xdg-desktop-portal-kde'
+  'sddm'
+  'sddm-kcm'
+  'flatpak'
+  'plasma-systemmonitor'
+  # base applications
+  'konsole'
+  'dolphin'
+  'kate'
+  'okular'
+  'gwenview'
+  'ark'
+  'spectacle'
+  'mpv'
+  'firefox'
+  'libreoffice-fresh'
+  # fonts
+  'noto-fonts'
+  'noto-fonts-emoji'
+  'ttf-liberation'
+)
+optdepends=('discover: graphical software centre')
+source=()
+
+package() {
+  cp -a "$startdir/files/." "$pkgdir/"
+}

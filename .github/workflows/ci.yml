@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint scripts and configs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: |
+          shellcheck \
+            build.sh scripts/*.sh ci/*.sh \
+            pkgbuilds/archbridge-wine/files/usr/bin/* \
+            pkgbuilds/archbridge-calamares-config/files/usr/bin/* \
+            pkgbuilds/archbridge-calamares-config/files/usr/share/archbridge/installer/cleanup-chroot.sh
+
+      - name: yamllint
+        run: |
+          python3 -m pip install --user yamllint
+          python3 -m yamllint -c .yamllint .github pkgbuilds/archbridge-calamares-config/files/usr/share/archbridge/installer
+
+  packages:
+    name: Build packages (Arch container)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build packages
+        run: |
+          docker run --rm \
+            -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
+            -v "$PWD:/work" -w /work \
+            archlinux:latest bash ci/container-build.sh pkgs
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: out/repo/
+          retention-days: 7

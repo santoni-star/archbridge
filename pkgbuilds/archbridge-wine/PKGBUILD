@@ -1,0 +1,32 @@
+pkgname=archbridge-wine
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='ArchBridge: run Windows programs with a double click (Wine, prefix bootstrap, .exe handler)'
+arch=('any')
+url='https://example.invalid/archbridge'
+license=('GPL-3.0-or-later')
+# Needs the [multilib] repository.
+depends=(
+  'wine-staging'
+  'winetricks'
+  'wine-mono'
+  'wine-gecko'
+  'cabextract'
+  'mesa'
+  'lib32-mesa'
+  'vulkan-icd-loader'
+  'lib32-vulkan-icd-loader'
+  'xdg-utils'
+)
+optdepends=(
+  'steam: Steam client (Proton)'
+  'lutris: game launcher'
+  'gamemode: performance governor for games'
+  'umu-launcher: run Proton outside Steam (check availability in the repositories)'
+)
+source=()
+
+package() {
+  cp -a "$startdir/files/." "$pkgdir/"
+  chmod 755 "$pkgdir/usr/bin/archbridge-run-exe" "$pkgdir/usr/bin/archbridge-wine-setup"
+}

@@ -1,0 +1,9 @@
+# Extra packages added to the stock archiso "releng" list.
+# Metapackages come from the local repo built by scripts/build-pkgs.sh.
+archbridge-base
+archbridge-desktop
+archbridge-wine
+archbridge-calamares-config
+calamares
+networkmanager
+sddm

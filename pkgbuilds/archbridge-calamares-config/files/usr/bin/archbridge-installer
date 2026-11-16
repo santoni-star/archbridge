@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Start the Calamares installer from the live session.
+# Calamares needs root; the live user has passwordless sudo.
+set -euo pipefail
+
+# Root cannot always reach the Wayland socket, so use XWayland for the installer.
+exec sudo -E env QT_QPA_PLATFORM=xcb calamares "$@"

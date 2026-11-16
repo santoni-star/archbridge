@@ -1,0 +1,67 @@
+# Calamares built against Qt6/KF6, without bundled default config
+# (ArchBridge ships its own in archbridge-calamares-config).
+#
+# Based on the AUR "calamares" PKGBUILD. The sha256 below was copied from that
+# PKGBUILD and has NOT been verified against the tarball here: check it before
+# the first release (sha256sum calamares-3.4.2.tar.gz).
+# Calamares moved from GitHub to Codeberg; releases are signed with
+# key 4947 400F 3746 A038 900B B178 328D 742D 8807 A435.
+
+pkgname=calamares
+pkgver=3.4.2
+pkgrel=1
+pkgdesc='Distribution-independent installer framework'
+arch=('x86_64')
+url='https://codeberg.org/Calamares/calamares'
+license=('GPL-3.0-or-later')
+depends=(
+  'kcoreaddons'
+  'kpmcore'
+  'libpwquality'
+  'polkit-qt6'
+  'python'
+  'qt6-declarative'
+  'qt6-svg'
+  'yaml-cpp'
+)
+makedepends=(
+  'extra-cmake-modules'
+  'libglvnd'
+  'ninja'
+  'pybind11'
+  'qt6-tools'
+  'qt6-translations'
+)
+source=("$pkgname-$pkgver.tar.gz::$url/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha256sums=('733bbbb00dc9f84874bd5c22960952f317ea2537565431179fa2152b2fbfdccc')
+
+build() {
+  local _skip_modules=(
+    dracut
+    dracutlukscfg
+    dummycpp
+    dummyprocess
+    dummypython
+    dummypythonqt
+    initramfs
+    initramfscfg
+    interactiveterminal
+    packagechooser
+    packagechooserq
+    services-openrc
+  )
+
+  cmake -B build -S "$pkgname-$pkgver" -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DWITH_QT6=ON \
+    -DINSTALL_CONFIG=OFF \
+    -DBUILD_TESTING=OFF \
+    -DSKIP_MODULES="${_skip_modules[*]}"
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

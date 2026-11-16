@@ -1,0 +1,74 @@
+name: Build ISO
+
+on:
+  schedule:
+    - cron: '17 2 * * *'   # nightly, 02:17 UTC
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+concurrency:
+  group: build-iso
+  cancel-in-progress: false
+
+jobs:
+  iso:
+    name: Build ISO (Arch container)
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: write   # needed only to publish a release on version tags
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          sudo mkdir -p /mnt/archbridge-work
+          df -h / /mnt
+
+      - name: Build packages and ISO
+        run: |
+          docker run --rm --privileged \
+            -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
+            -e WORK_DIR=/scratch \
+            -v "$PWD:/work" -v /mnt/archbridge-work:/scratch -w /work \
+            archlinux:latest bash ci/container-build.sh all
+
+      - name: Checksums
+        run: |
+          cd out/iso
+          sha256sum -- *.iso > SHA256SUMS
+          ls -lh
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: archbridge-iso
+          path: |
+            out/iso/*.iso
+            out/iso/SHA256SUMS
+          retention-days: 7
+          compression-level: 0
+
+      - name: Publish release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd out/iso
+          # GitHub release assets are limited to 2 GiB each: split bigger ISOs.
+          for iso in *.iso; do
+            if [ "$(stat -c %s "$iso")" -gt 2000000000 ]; then
+              split -d -b 1900M "$iso" "$iso.part-"
+              rm -- "$iso"
+            fi
+          done
+          rm -f SHA256SUMS
+          sha256sum -- *.iso* > SHA256SUMS
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --generate-notes \
+            --notes "If the ISO is split into .part-NN files, join them with: cat archbridge-*.iso.part-* > archbridge.iso" \
+            ./*

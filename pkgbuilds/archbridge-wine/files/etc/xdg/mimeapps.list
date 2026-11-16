@@ -1,0 +1,6 @@
+[Default Applications]
+application/x-ms-dos-executable=archbridge-wine.desktop
+application/vnd.microsoft.portable-executable=archbridge-wine.desktop
+application/x-msdownload=archbridge-wine.desktop
+application/x-msi=archbridge-wine.desktop
+application/x-ms-installer=archbridge-wine.desktop

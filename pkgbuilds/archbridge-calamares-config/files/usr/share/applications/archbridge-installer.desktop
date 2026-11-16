@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install ArchBridge
+Name[uk]=Встановити ArchBridge
+Name[pl]=Zainstaluj ArchBridge
+Exec=archbridge-installer
+Icon=system-software-install
+Terminal=false
+Categories=System;

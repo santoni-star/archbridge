@@ -1,0 +1,6 @@
+/out/
+/work/
+*.pkg.tar.*
+*.iso
+src/
+pkg/

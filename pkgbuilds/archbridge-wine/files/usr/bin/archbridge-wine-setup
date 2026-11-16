@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Create the default 64-bit Wine prefix with fonts and common runtimes.
+# Safe to run more than once; does nothing when the prefix is already prepared.
+set -euo pipefail
+
+export WINEPREFIX="${ARCHBRIDGE_PREFIX:-$HOME/.local/share/archbridge/prefix}"
+export WINEARCH=win64
+export WINEDEBUG="${WINEDEBUG:--all}"
+marker="$WINEPREFIX/.archbridge-ready"
+
+[[ -f "$marker" ]] && exit 0
+
+notify() {
+  command -v notify-send >/dev/null 2>&1 && notify-send -a ArchBridge "$@" || true
+}
+
+notify 'Preparing Windows compatibility' 'First run: creating the Wine environment (a few minutes).'
+mkdir -p "$WINEPREFIX"
+wineboot --init
+wineserver --wait
+
+# Non-fatal: a missing download must not block running programs.
+winetricks -q corefonts vcrun2022 || echo 'winetricks: some components failed to install' >&2
+wineserver --wait
+
+touch "$marker"
+notify 'Windows compatibility ready' 'You can now open .exe files.'

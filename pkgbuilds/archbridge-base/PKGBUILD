@@ -1,0 +1,36 @@
+pkgname=archbridge-base
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='ArchBridge: base system, Btrfs snapshots and sane defaults'
+arch=('any')
+url='https://example.invalid/archbridge'
+license=('GPL-3.0-or-later')
+depends=(
+  'base'
+  'linux'
+  'linux-firmware'
+  'btrfs-progs'
+  'grub'
+  'grub-btrfs'
+  'efibootmgr'
+  'snapper'
+  'snap-pac'
+  'networkmanager'
+  'zram-generator'
+  'ufw'
+  'sudo'
+  'git'
+  'nano'
+  'man-db'
+  'bash-completion'
+  'reflector'
+)
+optdepends=(
+  'linux-zen: alternative kernel (see README, kernel section)'
+  'linux-lts: fallback kernel'
+)
+source=()
+
+package() {
+  cp -a "$startdir/files/." "$pkgdir/"
+}
