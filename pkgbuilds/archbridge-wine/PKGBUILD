@@ -2,7 +2,7 @@ pkgname=archbridge-wine
 pkgver=0.1.0
 pkgrel=1
 pkgdesc='ArchBridge: run Windows programs with a double click (Wine, prefix bootstrap, .exe handler)'
-arch=('any')
+arch=('x86_64')
 url='https://example.invalid/archbridge'
 license=('GPL-3.0-or-later')
 # Needs the [multilib] repository.
