@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Create the default 64-bit Wine prefix with fonts and common runtimes.
-# Safe to run more than once; does nothing when the prefix is already prepared.
+# Safe to run more than once or concurrently; does nothing when ready.
 set -euo pipefail
 
 export WINEPREFIX="${ARCHBRIDGE_PREFIX:-$HOME/.local/share/archbridge/prefix}"
@@ -10,18 +10,61 @@ marker="$WINEPREFIX/.archbridge-ready"
 
 [[ -f "$marker" ]] && exit 0
 
+mkdir -p "$WINEPREFIX"
+exec 9>"$WINEPREFIX/.setup.lock"
+flock 9
+
+# Another process may have finished setup while we waited on the lock.
+[[ -f "$marker" ]] && exit 0
+
 notify() {
   command -v notify-send >/dev/null 2>&1 && notify-send -a ArchBridge "$@" || true
 }
 
+dbus_ref=''
+qdbus_cmd=''
+for cmd in qdbus6 qdbus-qt6 qdbus; do
+  if command -v "$cmd" >/dev/null 2>&1; then
+    qdbus_cmd="$cmd"
+    break
+  fi
+done
+
+if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v kdialog >/dev/null 2>&1; then
+  dbus_ref="$(kdialog --title 'ArchBridge — Windows Compatibility' \
+    --progressbar 'First run: creating the Wine environment (a few minutes)...' 3 2>/dev/null || true)"
+fi
+
+cleanup_dialog() {
+  if [[ -n "$dbus_ref" && -n "$qdbus_cmd" ]]; then
+    # shellcheck disable=SC2086
+    "$qdbus_cmd" $dbus_ref close >/dev/null 2>&1 || true
+  fi
+}
+trap cleanup_dialog EXIT
+
+set_progress() {
+  local step="$1"
+  local label="$2"
+  if [[ -n "$dbus_ref" && -n "$qdbus_cmd" ]]; then
+    # shellcheck disable=SC2086
+    "$qdbus_cmd" $dbus_ref Set "" value "$step" >/dev/null 2>&1 || true
+    # shellcheck disable=SC2086
+    "$qdbus_cmd" $dbus_ref setLabelText "$label" >/dev/null 2>&1 || true
+  fi
+}
+
 notify 'Preparing Windows compatibility' 'First run: creating the Wine environment (a few minutes).'
-mkdir -p "$WINEPREFIX"
+
+set_progress 1 'Step 1/2: Initializing 64-bit Wine prefix...'
 wineboot --init
 wineserver --wait
 
+set_progress 2 'Step 2/2: Installing Windows fonts and Visual C++ runtime...'
 # Non-fatal: a missing download must not block running programs.
 winetricks -q corefonts vcrun2022 || echo 'winetricks: some components failed to install' >&2
 wineserver --wait
 
+set_progress 3 'Windows compatibility is ready.'
 touch "$marker"
 notify 'Windows compatibility ready' 'You can now open .exe files.'

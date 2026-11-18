@@ -21,6 +21,7 @@ because it is not in the official repositories.
 | `pkgbuilds/archbridge-base` | base system, Btrfs tools, snapper, zram, ufw |
 | `pkgbuilds/archbridge-desktop` | minimal Plasma, base applications, Baloo off |
 | `pkgbuilds/archbridge-wine` | Wine Staging, `.exe` handler, default prefix bootstrap |
+| `pkgbuilds/archbridge-welcome` | first-run welcome & setup assistant (Flathub, Wine, apps) |
 | `pkgbuilds/archbridge-calamares-config` | installer config, branding, launcher, cleanup |
 | `iso/` | overlay applied on top of the stock archiso `releng` profile |
 | `scripts/build-pkgs.sh` | builds the packages into `out/repo` |
@@ -81,7 +82,7 @@ The ISO build needs roughly 15 GB of free disk space.
 - **Installer under Wayland.** `archbridge-installer` forces XWayland
   (`QT_QPA_PLATFORM=xcb`) because a root process cannot always reach the
   Wayland socket. Test this in a VM.
-- **Not implemented yet:** the Welcome/profile app, the AI pet and gateway,
+- **Not implemented yet:** the AI pet and gateway,
   the ArtCraft applications (see the spec, they still need compatibility
   checks), Secure Boot.
 

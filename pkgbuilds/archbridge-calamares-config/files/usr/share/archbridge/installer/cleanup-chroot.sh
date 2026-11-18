@@ -39,6 +39,7 @@ pacman-key --populate archlinux
 
 log 'enabling services'
 systemctl enable NetworkManager.service sddm.service 2>/dev/null || true
+systemctl enable bluetooth.service 2>/dev/null || true
 systemctl enable fstrim.timer 2>/dev/null || true
 systemctl enable ufw.service 2>/dev/null || true
 

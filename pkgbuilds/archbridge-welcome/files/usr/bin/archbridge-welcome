@@ -1,0 +1,231 @@
+#!/usr/bin/env python3
+"""ArchBridge first-run welcome and setup assistant."""
+
+import argparse
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+from PySide6.QtCore import QThread, Signal, Qt
+from PySide6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
+
+CONFIG_DIR = Path.home() / ".config" / "archbridge"
+DONE_MARKER = CONFIG_DIR / "welcome-done"
+
+
+class TaskRunner(QThread):
+    """Run selected setup tasks sequentially without blocking the UI."""
+
+    log_line = Signal(str)
+    finished_ok = Signal(bool)
+
+    def __init__(self, commands: list[tuple[str, list[str]]]) -> None:
+        super().__init__()
+        self.commands = commands
+
+    def run(self) -> None:
+        all_ok = True
+        for label, cmd in self.commands:
+            self.log_line.emit(f"==> {label}")
+            try:
+                proc = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                )
+                assert proc.stdout is not None
+                for line in proc.stdout:
+                    self.log_line.emit(line.rstrip())
+                rc = proc.wait()
+                if rc != 0:
+                    self.log_line.emit(f"[warn] '{label}' exited with code {rc}")
+                    all_ok = False
+            except OSError as exc:
+                self.log_line.emit(f"[error] {label}: {exc}")
+                all_ok = False
+        self.finished_ok.emit(all_ok)
+
+
+class WelcomeWindow(QMainWindow):
+    """Main ArchBridge welcome window."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.setWindowTitle("Welcome to ArchBridge")
+        self.setMinimumSize(620, 480)
+        self.runner: TaskRunner | None = None
+
+        central = QWidget()
+        self.setCentralWidget(central)
+        layout = QVBoxLayout(central)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(14)
+
+        title = QLabel("Welcome to ArchBridge")
+        title.setStyleSheet("font-size: 22px; font-weight: bold;")
+        layout.addWidget(title)
+
+        subtitle = QLabel(
+            "Clean Arch Linux with KDE Plasma, Btrfs snapshots, and Windows app support.\n"
+            "Select the optional setup steps you would like to run now:"
+        )
+        subtitle.setWordWrap(True)
+        layout.addWidget(subtitle)
+
+        sep = QFrame()
+        sep.setFrameShape(QFrame.Shape.HLine)
+        layout.addWidget(sep)
+
+        self.cb_flathub = QCheckBox("Enable Flathub (recommended for graphical apps)")
+        self.cb_flathub.setChecked(True)
+        layout.addWidget(self.cb_flathub)
+
+        self.cb_wine = QCheckBox(
+            "Prepare Windows compatibility (Wine prefix + fonts/VC++ runtime)"
+        )
+        self.cb_wine.setChecked(True)
+        layout.addWidget(self.cb_wine)
+
+        self.cb_steam = QCheckBox("Install Steam (Flathub)")
+        layout.addWidget(self.cb_steam)
+
+        self.cb_vlc = QCheckBox("Install VLC Media Player (Flathub)")
+        layout.addWidget(self.cb_vlc)
+
+        self.cb_telegram = QCheckBox("Install Telegram Desktop (Flathub)")
+        layout.addWidget(self.cb_telegram)
+
+        self.log_box = QTextEdit()
+        self.log_box.setReadOnly(True)
+        self.log_box.setPlaceholderText("Setup output will appear here...")
+        layout.addWidget(self.log_box, stretch=1)
+
+        footer = QHBoxLayout()
+        self.cb_autostart = QCheckBox("Show on startup")
+        self.cb_autostart.setChecked(not DONE_MARKER.exists())
+        footer.addWidget(self.cb_autostart)
+        footer.addStretch()
+
+        self.btn_apply = QPushButton("Run Selected")
+        self.btn_apply.clicked.connect(self.run_selected)
+        footer.addWidget(self.btn_apply)
+
+        self.btn_close = QPushButton("Close")
+        self.btn_close.clicked.connect(self.close)
+        footer.addWidget(self.btn_close)
+
+        layout.addLayout(footer)
+
+    def _sync_autostart_marker(self) -> None:
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        if self.cb_autostart.isChecked():
+            DONE_MARKER.unlink(missing_ok=True)
+        else:
+            DONE_MARKER.touch()
+
+    def closeEvent(self, event) -> None:  # type: ignore[override]
+        self._sync_autostart_marker()
+        super().closeEvent(event)
+
+    def run_selected(self) -> None:
+        commands: list[tuple[str, list[str]]] = []
+        need_flathub = (
+            self.cb_flathub.isChecked()
+            or self.cb_steam.isChecked()
+            or self.cb_vlc.isChecked()
+            or self.cb_telegram.isChecked()
+        )
+        if need_flathub:
+            commands.append(
+                (
+                    "Enable Flathub",
+                    [
+                        "flatpak",
+                        "remote-add",
+                        "--user",
+                        "--if-not-exists",
+                        "flathub",
+                        "https://dl.flathub.org/repo/flathub.flatpakrepo",
+                    ],
+                )
+            )
+        if self.cb_wine.isChecked():
+            commands.append(("Prepare Wine prefix", ["archbridge-wine-setup"]))
+        if self.cb_steam.isChecked():
+            commands.append(
+                (
+                    "Install Steam",
+                    ["flatpak", "install", "--user", "-y", "flathub", "com.valvesoftware.Steam"],
+                )
+            )
+        if self.cb_vlc.isChecked():
+            commands.append(
+                (
+                    "Install VLC",
+                    ["flatpak", "install", "--user", "-y", "flathub", "org.videolan.VLC"],
+                )
+            )
+        if self.cb_telegram.isChecked():
+            commands.append(
+                (
+                    "Install Telegram",
+                    ["flatpak", "install", "--user", "-y", "flathub", "org.telegram.desktop"],
+                )
+            )
+
+        if not commands:
+            self.log_box.append("Nothing selected.")
+            return
+
+        self.btn_apply.setEnabled(False)
+        self.log_box.clear()
+        self.runner = TaskRunner(commands)
+        self.runner.log_line.connect(self.log_box.append)
+        self.runner.finished_ok.connect(self._on_finished)
+        self.runner.start()
+
+    def _on_finished(self, ok: bool) -> None:
+        self.btn_apply.setEnabled(True)
+        self.log_box.append(
+            "\nDone!" if ok else "\nFinished with warnings (see log above)."
+        )
+        if ok:
+            self.cb_autostart.setChecked(False)
+            self._sync_autostart_marker()
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="ArchBridge Welcome")
+    parser.add_argument(
+        "--autostart",
+        action="store_true",
+        help="Exit immediately in live session or when already completed.",
+    )
+    args = parser.parse_args()
+
+    if args.autostart:
+        if os.environ.get("USER") == "liveuser" or DONE_MARKER.exists():
+            return 0
+
+    app = QApplication(sys.argv)
+    app.setApplicationName("ArchBridge Welcome")
+    win = WelcomeWindow()
+    win.show()
+    return app.exec()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

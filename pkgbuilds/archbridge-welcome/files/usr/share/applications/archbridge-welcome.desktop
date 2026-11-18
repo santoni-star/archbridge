@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=ArchBridge Welcome
+Name[uk]=Вітаємо в ArchBridge
+Name[pl]=Witamy w ArchBridge
+Comment=First-run setup assistant for ArchBridge
+Exec=archbridge-welcome
+Icon=start-here-kde
+Terminal=false
+Categories=System;Settings;

@@ -10,6 +10,8 @@ depends=(
   'linux'
   'linux-firmware'
   'btrfs-progs'
+  'ntfs-3g'
+  'exfatprogs'
   'grub'
   'grub-btrfs'
   'efibootmgr'

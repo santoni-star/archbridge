@@ -26,6 +26,7 @@ packages=(
   'archbridge-base:-df --noconfirm'
   'archbridge-desktop:-df --noconfirm'
   'archbridge-wine:-df --noconfirm'
+  'archbridge-welcome:-df --noconfirm'
   'archbridge-calamares-config:-df --noconfirm'
 )
 

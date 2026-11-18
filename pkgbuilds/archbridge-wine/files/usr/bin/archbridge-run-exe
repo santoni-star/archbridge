@@ -8,14 +8,38 @@ if [[ $# -lt 1 ]]; then
   exit 2
 fi
 
+file="$1"
+shift
+
+show_error() {
+  local msg="$1"
+  echo "$msg" >&2
+  if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v kdialog >/dev/null 2>&1; then
+    kdialog --title 'ArchBridge — Windows Program' --error "$msg" 2>/dev/null || true
+  fi
+}
+
+if [[ ! -f "$file" ]]; then
+  show_error "File not found: $file"
+  exit 1
+fi
+
 archbridge-wine-setup
 
 export WINEPREFIX="${ARCHBRIDGE_PREFIX:-$HOME/.local/share/archbridge/prefix}"
 export WINEDEBUG="${WINEDEBUG:--all}"
-file="$1"
-shift
 
 case "${file,,}" in
-  *.msi) exec wine msiexec /i "$(winepath -w "$file")" "$@" ;;
-  *)     exec wine start /unix "$file" "$@" ;;
+  *.msi)
+    if ! wine msiexec /i "$(winepath -w "$file")" "$@"; then
+      show_error "Failed to run Windows installer: ${file##*/}"
+      exit 1
+    fi
+    ;;
+  *)
+    if ! wine start /unix "$file" "$@"; then
+      show_error "Failed to launch Windows program: ${file##*/}"
+      exit 1
+    fi
+    ;;
 esac

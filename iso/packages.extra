@@ -3,6 +3,7 @@
 archbridge-base
 archbridge-desktop
 archbridge-wine
+archbridge-welcome
 archbridge-calamares-config
 calamares
 networkmanager

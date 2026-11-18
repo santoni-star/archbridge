@@ -1,0 +1,19 @@
+pkgname=archbridge-welcome
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='ArchBridge: first-run welcome and setup assistant'
+arch=('x86_64')
+url='https://github.com/santoni-star/archbridge'
+license=('GPL-3.0-or-later')
+depends=(
+  'python'
+  'pyside6'
+  'flatpak'
+  'xdg-utils'
+)
+source=()
+
+package() {
+  cp -a "$startdir/files/." "$pkgdir/"
+  chmod 755 "$pkgdir/usr/bin/archbridge-welcome"
+}

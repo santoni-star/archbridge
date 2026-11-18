@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=ArchBridge Welcome
+Exec=archbridge-welcome --autostart
+Icon=start-here-kde
+Terminal=false
+X-GNOME-Autostart-enabled=true
