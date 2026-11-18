@@ -75,7 +75,6 @@ The ISO build needs roughly 15 GB of free disk space.
   entries and the mkinitcpio preset together. Do it as a separate step.
 - **Bootloader.** GRUB is used so snapshots can be chosen in the boot menu.
   `systemd-boot` would be faster; it is an open question in the spec.
-- **Branding.** `logo.png` / `welcome.png` are generated placeholders.
 - **Wine.** `umu-launcher` is only an optional dependency, since its presence
   in the official repositories was not confirmed. The default prefix installs
   `corefonts` and `vcrun2022` on first run and needs internet access then.

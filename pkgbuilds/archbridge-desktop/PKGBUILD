@@ -21,6 +21,7 @@ depends=(
   'breeze-gtk'
   'xdg-desktop-portal-kde'
   'xdg-user-dirs'
+  'breeze'
   'sddm'
   'sddm-kcm'
   'flatpak'
