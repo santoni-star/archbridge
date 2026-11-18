@@ -62,7 +62,8 @@ The ISO build needs roughly 15 GB of free disk space.
 1. `build-pkgs.sh` builds the five packages into a local pacman repo.
 2. `build-iso.sh` copies the stock `releng` profile, appends `iso/packages.extra`,
    overlays `iso/airootfs`, adds a passwordless `liveuser` with Plasma
-   autologin and points `pacman.conf` at the local repo.
+   autologin (usable both as a Live CD without installing and as an installer
+   environment) and points `pacman.conf` at the local repo.
 3. The installer unpacks the live squashfs (`unpackfs`), then
    `cleanup-chroot.sh` removes the live user and autologin, restores a normal
    `mkinitcpio` setup, drops the build-time repo from `pacman.conf`,

@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 
 CONFIG_DIR = Path.home() / ".config" / "archbridge"
 DONE_MARKER = CONFIG_DIR / "welcome-done"
+LIVE_DONE_MARKER = Path("/tmp/archbridge-live-welcome-done")
 
 
 class TaskRunner(QThread):
@@ -207,22 +208,76 @@ class WelcomeWindow(QMainWindow):
             self._sync_autostart_marker()
 
 
+class LiveWelcomeWindow(QMainWindow):
+    """Welcome dialog for Live CD mode (try without installing)."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.setWindowTitle("ArchBridge Live CD")
+        self.setMinimumSize(540, 320)
+
+        central = QWidget()
+        self.setCentralWidget(central)
+        layout = QVBoxLayout(central)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(14)
+
+        title = QLabel("Try ArchBridge (Live CD Mode)")
+        title.setStyleSheet("font-size: 22px; font-weight: bold;")
+        layout.addWidget(title)
+
+        info = QLabel(
+            "You are running ArchBridge directly from the Live CD.\n"
+            "You can browse the web, access your Windows drives, and test KDE Plasma "
+            "without making any changes to your disk.\n\n"
+            "Whenever you are ready, you can install ArchBridge to your drive."
+        )
+        info.setWordWrap(True)
+        layout.addWidget(info)
+        layout.addStretch()
+
+        actions = QHBoxLayout()
+        btn_try = QPushButton("Try Live Desktop")
+        btn_try.clicked.connect(self.close)
+        actions.addWidget(btn_try)
+
+        btn_files = QPushButton("Open File Manager")
+        btn_files.clicked.connect(lambda: subprocess.Popen(["dolphin"]))
+        actions.addWidget(btn_files)
+
+        btn_install = QPushButton("Install ArchBridge")
+        btn_install.setStyleSheet("font-weight: bold;")
+        btn_install.clicked.connect(self._launch_installer)
+        actions.addWidget(btn_install)
+
+        layout.addLayout(actions)
+
+    def _launch_installer(self) -> None:
+        subprocess.Popen(["archbridge-installer"])
+        self.close()
+
+    def closeEvent(self, event) -> None:  # type: ignore[override]
+        LIVE_DONE_MARKER.touch()
+        super().closeEvent(event)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="ArchBridge Welcome")
     parser.add_argument(
         "--autostart",
         action="store_true",
-        help="Exit immediately in live session or when already completed.",
+        help="Exit immediately when already completed.",
     )
     args = parser.parse_args()
 
+    is_live = os.environ.get("USER") == "liveuser"
     if args.autostart:
-        if os.environ.get("USER") == "liveuser" or DONE_MARKER.exists():
+        if (is_live and LIVE_DONE_MARKER.exists()) or (not is_live and DONE_MARKER.exists()):
             return 0
 
     app = QApplication(sys.argv)
     app.setApplicationName("ArchBridge Welcome")
-    win = WelcomeWindow()
+    win: QMainWindow = LiveWelcomeWindow() if is_live else WelcomeWindow()
     win.show()
     return app.exec()
 

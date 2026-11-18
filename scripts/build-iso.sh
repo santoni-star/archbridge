@@ -62,7 +62,7 @@ ln -sf /usr/lib/systemd/system/graphical.target "$AIROOTFS/etc/systemd/system/de
 
 # 6. Branding of the boot menus.
 find "$PROFILE/syslinux" "$PROFILE/grub" "$PROFILE/efiboot" -type f -print0 2>/dev/null |
-  xargs -0 -r sed -i 's/Arch Linux install medium/ArchBridge live/g; s/Arch Linux/ArchBridge/g'
+  xargs -0 -r sed -i 's/Arch Linux install medium/ArchBridge Live CD (Try or Install)/g; s/Arch Linux/ArchBridge/g'
 
 # 7. profiledef.sh (it is sourced by bash, so $(date) is expanded by mkarchiso)
 # shellcheck disable=SC2016
