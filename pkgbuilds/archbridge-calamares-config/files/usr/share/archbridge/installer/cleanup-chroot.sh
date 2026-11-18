@@ -41,7 +41,20 @@ log 'enabling services'
 systemctl enable NetworkManager.service sddm.service 2>/dev/null || true
 systemctl enable fstrim.timer 2>/dev/null || true
 systemctl enable ufw.service 2>/dev/null || true
-systemctl enable snapper-timeline.timer snapper-cleanup.timer 2>/dev/null || true
+
+if [[ "$(findmnt -n -o FSTYPE /)" == 'btrfs' ]] && command -v snapper >/dev/null 2>&1; then
+  log 'configuring snapper for /'
+  if mountpoint -q /.snapshots; then
+    umount /.snapshots
+  fi
+  rmdir /.snapshots 2>/dev/null || true
+  snapper --no-dbus -c root create-config /
+  btrfs subvolume delete /.snapshots 2>/dev/null || rm -rf /.snapshots
+  mkdir -p /.snapshots
+  chmod 750 /.snapshots
+  mount /.snapshots 2>/dev/null || true
+  systemctl enable snapper-timeline.timer snapper-cleanup.timer grub-btrfsd.service 2>/dev/null || true
+fi
 
 log 'done'
 exit 0

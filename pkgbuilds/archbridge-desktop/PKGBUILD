@@ -3,7 +3,7 @@ pkgver=0.1.0
 pkgrel=1
 pkgdesc='ArchBridge: minimal KDE Plasma (Wayland) desktop and base applications'
 arch=('x86_64')
-url='https://example.invalid/archbridge'
+url='https://github.com/santoni-star/archbridge'
 license=('GPL-3.0-or-later')
 depends=(
   # Plasma: deliberately plasma-desktop, not plasma-meta

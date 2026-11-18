@@ -15,10 +15,10 @@ strings:
   versionedName: ArchBridge 0.1
   shortVersionedName: ArchBridge 0.1
   bootloaderEntryName: ArchBridge
-  productUrl: https://example.invalid/archbridge
-  supportUrl: https://example.invalid/archbridge/support
-  knownIssuesUrl: https://example.invalid/archbridge/issues
-  releaseNotesUrl: https://example.invalid/archbridge/releases
+  productUrl: https://github.com/santoni-star/archbridge
+  supportUrl: https://github.com/santoni-star/archbridge/issues
+  knownIssuesUrl: https://github.com/santoni-star/archbridge/issues
+  releaseNotesUrl: https://github.com/santoni-star/archbridge/releases
 
 images:
   productLogo: "logo.png"

@@ -69,21 +69,12 @@ The ISO build needs roughly 15 GB of free disk space.
 
 ## Known gaps (to do before a first public build)
 
-- **Calamares checksum.** The `sha256sums` in `pkgbuilds/calamares/PKGBUILD`
-  was copied from the AUR package and not checked against the tarball
-  (the download host was not reachable from the environment where this was
-  written). Verify it, ideally against the signature.
-- **Calamares dependencies.** The dependency list is based on the AUR package
-  and may be missing a KDE Frameworks package; the first CI build will show.
 - **Kernel.** The ISO uses the stock `linux` kernel, because the archiso live
   boot is wired to it. Switching to `linux-zen` means changing the releng boot
   entries and the mkinitcpio preset together. Do it as a separate step.
-- **Snapshots.** `snapper` and `grub-btrfs` are installed and the timers are
-  enabled, but no snapper config for `/` is created at install time yet.
 - **Bootloader.** GRUB is used so snapshots can be chosen in the boot menu.
   `systemd-boot` would be faster; it is an open question in the spec.
-- **Branding.** `logo.png` / `welcome.png` are generated placeholders, and the
-  project URLs in `branding.desc` are `example.invalid`.
+- **Branding.** `logo.png` / `welcome.png` are generated placeholders.
 - **Wine.** `umu-launcher` is only an optional dependency, since its presence
   in the official repositories was not confirmed. The default prefix installs
   `corefonts` and `vcrun2022` on first run and needs internet access then.
