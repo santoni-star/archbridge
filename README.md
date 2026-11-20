@@ -23,6 +23,8 @@ because it is not in the official repositories.
 | `pkgbuilds/archbridge-wine` | Wine Staging, `.exe` handler, default prefix bootstrap |
 | `pkgbuilds/archbridge-welcome` | first-run welcome & setup assistant (Flathub, Wine, apps) |
 | `pkgbuilds/archbridge-calamares-config` | installer config, branding, launcher, cleanup |
+| `pkgbuilds/portproton` | PortProton launcher for Windows games & launchers |
+| `pkgbuilds/hermes-agent-bin` | Hermes Agent local AI assistant |
 | `iso/` | overlay applied on top of the stock archiso `releng` profile |
 | `scripts/build-pkgs.sh` | builds the packages into `out/repo` |
 | `scripts/build-iso.sh` | builds the ISO into `out/iso` |
@@ -71,9 +73,6 @@ The ISO build needs roughly 15 GB of free disk space.
 
 ## Known gaps (to do before a first public build)
 
-- **Kernel.** The ISO uses the stock `linux` kernel, because the archiso live
-  boot is wired to it. Switching to `linux-zen` means changing the releng boot
-  entries and the mkinitcpio preset together. Do it as a separate step.
 - **Bootloader.** GRUB is used so snapshots can be chosen in the boot menu.
   `systemd-boot` would be faster; it is an open question in the spec.
 - **Wine.** `umu-launcher` is only an optional dependency, since its presence

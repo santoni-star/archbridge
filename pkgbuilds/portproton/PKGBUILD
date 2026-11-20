@@ -1,0 +1,36 @@
+# Maintainer: LINUX-GAMING.RU (tergoevm@gmail.com)
+pkgname=portproton
+pkgver=1.7.5
+pkgrel=1
+pkgdesc='Software for playing Microsoft Windows games and launchers'
+arch=('x86_64')
+url='https://linux-gaming.ru'
+license=('MIT')
+depends=(
+  'bash' 'yad' 'bubblewrap' 'zstd' 'cabextract' 'gzip'
+  'tar' 'openssl' 'desktop-file-utils' 'curl' 'dbus' 'freetype2' 'xdg-utils'
+  'gdk-pixbuf2' 'ttf-font' 'nss' 'xorg-xrandr' 'mesa-utils' 'imagemagick'
+  'vulkan-driver' 'vulkan-icd-loader' 'lib32-libgl' 'lib32-gcc-libs' 'vulkan-tools'
+  'lib32-libx11' 'lib32-libxss' 'lib32-alsa-plugins' 'lib32-pipewire'
+  'lib32-libgpg-error' 'lib32-gnutls' 'lib32-freetype2' 'perl-image-exiftool'
+  'lib32-nss' 'lib32-vulkan-driver' 'lib32-vulkan-icd-loader' 'lib32-openssl'
+  'python-pillow' 'jq'
+)
+optdepends=(
+  'gamemode: Support for Feral GameMode'
+  'lib32-gamemode: 32-bit support for Feral GameMode'
+  'gamescope: Support for Gamescope'
+)
+_commit=06b304c
+_gitname=PortProton_ALT
+_flatpakname=ru.linux_gaming.PortProton
+source=("git+https://github.com/Castro-Fidel/PortProton_ALT.git#commit=$_commit")
+sha256sums=('SKIP')
+
+package() {
+  install -Dm755 "$srcdir/$_gitname/$pkgname" "$pkgdir/usr/bin/$pkgname"
+  install -Dm644 "$srcdir/$_gitname/$_flatpakname.desktop" -t "$pkgdir/usr/share/applications/"
+  install -Dm644 "$srcdir/$_gitname/$_flatpakname.svg" -t "$pkgdir/usr/share/icons/hicolor/scalable/apps/"
+  install -Dm644 "$srcdir/$_gitname/$_flatpakname.metainfo.xml" -t "$pkgdir/usr/share/metainfo/"
+  install -Dm644 "$srcdir/$_gitname/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

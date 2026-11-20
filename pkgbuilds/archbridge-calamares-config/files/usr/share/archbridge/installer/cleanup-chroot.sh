@@ -16,17 +16,15 @@ rm -f /usr/local/bin/choose-mirror /usr/local/bin/Installation_guide
 
 log 'switching mkinitcpio from the live (archiso) setup to a normal one'
 rm -f /etc/mkinitcpio.conf.d/archiso.conf
-# Restore the stock preset when releng replaced it.
-if [[ -f /etc/mkinitcpio.d/linux.preset ]]; then
-  cat > /etc/mkinitcpio.d/linux.preset <<'EOF'
+rm -f /etc/mkinitcpio.d/linux.preset
+cat > /etc/mkinitcpio.d/linux-zen.preset <<'EOF'
 ALL_config="/etc/mkinitcpio.conf"
-ALL_kver="/boot/vmlinuz-linux"
+ALL_kver="/boot/vmlinuz-linux-zen"
 PRESETS=('default' 'fallback')
-default_image="/boot/initramfs-linux.img"
-fallback_image="/boot/initramfs-linux-fallback.img"
+default_image="/boot/initramfs-linux-zen.img"
+fallback_image="/boot/initramfs-linux-zen-fallback.img"
 fallback_options="-S autodetect"
 EOF
-fi
 
 log 'dropping the build-time local repository from pacman.conf'
 if [[ -f /etc/pacman.conf ]]; then
@@ -39,7 +37,7 @@ pacman-key --populate archlinux
 
 log 'enabling services'
 systemctl enable NetworkManager.service sddm.service 2>/dev/null || true
-systemctl enable bluetooth.service 2>/dev/null || true
+systemctl enable bluetooth.service cups.service 2>/dev/null || true
 systemctl enable fstrim.timer 2>/dev/null || true
 systemctl enable ufw.service 2>/dev/null || true
 

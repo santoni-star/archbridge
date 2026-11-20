@@ -1,0 +1,29 @@
+# Prebuilt by GitHub Actions in https://github.com/jabla/hermes-agent-bin
+pkgname=hermes-agent-bin
+pkgver=0.23.3
+pkgrel=1
+pkgdesc='Locally-run AI agent with tool use, web browsing, and automation (prebuilt)'
+arch=('x86_64')
+url='https://github.com/NousResearch/hermes-agent'
+license=('MIT')
+depends=(
+  'python>=3.14' 'python<3.15'
+  'nodejs>=26' 'npm' 'pnpm' 'uv>=0.13.5' 'ripgrep' 'ffmpeg'
+  'nss' 'atk' 'at-spi2-core' 'cups' 'libdrm' 'libxkbcommon' 'mesa' 'pango'
+  'cairo' 'alsa-lib' 'libxcomposite' 'libxdamage' 'libxrandr'
+  'git' 'curl'
+)
+optdepends=(
+  'chromium: system browser for browser_exec'
+)
+conflicts=('hermes-agent')
+provides=("hermes-agent=${pkgver}")
+options=('!debug' '!strip')
+_artifact="${pkgname}-${pkgver}-${pkgrel}-prebuilt.tar.zst"
+source=("${_artifact}::https://github.com/jabla/hermes-agent-bin/releases/download/v${pkgver}-${pkgrel}/${pkgname}-${pkgver}-${pkgrel}-x86_64.pkg.tar.zst")
+noextract=("${_artifact}")
+sha256sums=('aa00733a62b3e07148b809321c4ab2cf77bb09d9890eabb991d2ec5c64e8ebe2')
+
+package() {
+  bsdtar -xf "${srcdir}/${_artifact}" -C "${pkgdir}" ./opt ./usr
+}

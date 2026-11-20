@@ -33,6 +33,19 @@ depends=(
   'pipewire-alsa'
   'pipewire-pulse'
   'wireplumber'
+  # software centre, printing & Vulkan drivers
+  'discover'
+  'packagekit-qt6'
+  'cups'
+  'print-manager'
+  'vulkan-radeon'
+  'vulkan-intel'
+  'lib32-vulkan-radeon'
+  'lib32-vulkan-intel'
+  # developer tools
+  'nodejs'
+  'npm'
+  'code'
   # base applications
   'konsole'
   'dolphin'
@@ -49,7 +62,6 @@ depends=(
   'noto-fonts-emoji'
   'ttf-liberation'
 )
-optdepends=('discover: graphical software centre')
 source=()
 
 package() {

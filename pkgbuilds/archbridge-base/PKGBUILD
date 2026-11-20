@@ -7,8 +7,10 @@ url='https://github.com/santoni-star/archbridge'
 license=('GPL-3.0-or-later')
 depends=(
   'base'
-  'linux'
+  'linux-zen'
   'linux-firmware'
+  'intel-ucode'
+  'amd-ucode'
   'btrfs-progs'
   'ntfs-3g'
   'exfatprogs'
@@ -28,7 +30,7 @@ depends=(
   'reflector'
 )
 optdepends=(
-  'linux-zen: alternative kernel (see README, kernel section)'
+  'linux: stock Arch kernel'
   'linux-lts: fallback kernel'
 )
 source=()

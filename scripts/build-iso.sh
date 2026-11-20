@@ -34,7 +34,8 @@ rm -rf "$PROFILE" "$WORK/tmp"
 mkdir -p "$WORK" "$ISO_OUT"
 cp -r "$RELENG" "$PROFILE"
 
-# 1. Package list: stock releng list + project additions.
+# 1. Package list: stock releng list (with linux-zen) + project additions.
+sed -i 's/^linux$/linux-zen/' "$PROFILE/packages.x86_64"
 grep -vE '^[[:space:]]*(#|$)' "$ROOT/iso/packages.extra" >> "$PROFILE/packages.x86_64"
 
 # 2. Filesystem overlay.
@@ -60,9 +61,15 @@ ln -sf /usr/lib/systemd/system/NetworkManager.service \
   "$AIROOTFS/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
 ln -sf /usr/lib/systemd/system/graphical.target "$AIROOTFS/etc/systemd/system/default.target"
 
-# 6. Branding of the boot menus.
+# 6. Branding and linux-zen kernel paths in boot menus & mkinitcpio preset.
 find "$PROFILE/syslinux" "$PROFILE/grub" "$PROFILE/efiboot" -type f -print0 2>/dev/null |
-  xargs -0 -r sed -i 's/Arch Linux install medium/ArchBridge Live CD (Try or Install)/g; s/Arch Linux/ArchBridge/g'
+  xargs -0 -r sed -i \
+    's/Arch Linux install medium/ArchBridge Live CD (Try or Install)/g; s/Arch Linux/ArchBridge/g; s/vmlinuz-linux/vmlinuz-linux-zen/g; s/initramfs-linux/initramfs-linux-zen/g'
+if [[ -f "$AIROOTFS/etc/mkinitcpio.d/linux.preset" ]]; then
+  sed -i 's/vmlinuz-linux/vmlinuz-linux-zen/g; s/initramfs-linux/initramfs-linux-zen/g' \
+    "$AIROOTFS/etc/mkinitcpio.d/linux.preset"
+  mv "$AIROOTFS/etc/mkinitcpio.d/linux.preset" "$AIROOTFS/etc/mkinitcpio.d/linux-zen.preset"
+fi
 
 # 7. profiledef.sh (it is sourced by bash, so $(date) is expanded by mkarchiso)
 # shellcheck disable=SC2016

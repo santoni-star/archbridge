@@ -28,6 +28,8 @@ packages=(
   'archbridge-wine:-df --noconfirm'
   'archbridge-welcome:-df --noconfirm'
   'archbridge-calamares-config:-df --noconfirm'
+  'portproton:-df --noconfirm'
+  'hermes-agent-bin:-df --noconfirm'
 )
 
 for entry in "${packages[@]}"; do

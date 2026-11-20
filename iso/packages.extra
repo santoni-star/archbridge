@@ -6,5 +6,7 @@ archbridge-wine
 archbridge-welcome
 archbridge-calamares-config
 calamares
+portproton
+hermes-agent-bin
 networkmanager
 sddm
